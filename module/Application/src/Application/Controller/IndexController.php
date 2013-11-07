@@ -11,7 +11,7 @@ namespace Application\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
-
+use Doctrine\ORM\EntityManager;
 class IndexController extends AbstractActionController
 {
     public function indexAction()
@@ -21,7 +21,7 @@ class IndexController extends AbstractActionController
             ->get('Doctrine\ORM\EntityManager');
 
         $user = new \Application\Entity\User();
-        $user->setFullName('Marco Pivetta');
+        $user->setFullName('Mark');
 
         $objectManager->persist($user);
         $objectManager->flush();
