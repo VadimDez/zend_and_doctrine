@@ -9,25 +9,73 @@
 
 namespace Application\Controller;
 
+use Application\Entity\User;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
-use Doctrine\ORM\EntityManager;
 class IndexController extends AbstractActionController
 {
+    protected $_objectManager;
+
+    protected function getObjectManager()
+    {
+        if (!$this->_objectManager) {
+            $this->_objectManager = $this->getServiceLocator()->get('Doctrine\ORM\EntityManager');
+        }
+
+        return $this->_objectManager;
+    }
+
     public function indexAction()
     {
-        $objectManager = $this
-            ->getServiceLocator()
-            ->get('Doctrine\ORM\EntityManager');
-
-        $user = new \Application\Entity\User();
-        //$user->setFullName('Mark2');
-
-        //$objectManager->persist($user);
-        //$objectManager->flush();
-
-        $users = $objectManager->getRepository('\Application\Entity\User')->findAll();
+        $users = $this->getObjectManager()->getRepository('\Application\Entity\User')->findAll();
 
         return new ViewModel(array('users' => $users));
+    }
+
+    public function addAction()
+    {
+        if($this->request->isPost())
+        {
+            $user = new User();
+            $user->setFullName($this->getRequest()->getPost('fullname'));
+
+            $this->getObjectManager()->persist($user);
+            $this->getObjectManager()->flush();
+
+            return $this->redirect()->toRoute('home');
+        }
+        return new ViewModel();
+    }
+
+    public function editAction()
+    {
+        $id = (int)$this->params()->fromRoute('id',0);
+        $user = $this->getObjectManager()->find('\Application\Entity\User',$id);
+
+        if ($this->request->isPost()) {
+            $user->setFullName($this->getRequest()->getPost('fullname'));
+
+            $this->getObjectManager()->persist($user);
+            $this->getObjectManager()->flush();
+
+            return $this->redirect()->toRoute('home');
+        }
+
+        return new ViewModel(array('user' => $user));
+    }
+
+    public function deleteAction()
+    {
+        $id = (int) $this->params()->fromRoute('id', 0);
+        $user = $this->getObjectManager()->find('\Application\Entity\User', $id);
+
+        if ($this->request->isPost()) {
+            $this->getObjectManager()->remove($user);
+            $this->getObjectManager()->flush();
+
+            return $this->redirect()->toRoute('home');
+        }
+
+        return new ViewModel(array('user' => $user));
     }
 }
