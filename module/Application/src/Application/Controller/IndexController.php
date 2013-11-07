@@ -21,13 +21,13 @@ class IndexController extends AbstractActionController
             ->get('Doctrine\ORM\EntityManager');
 
         $user = new \Application\Entity\User();
-        $user->setFullName('Mark');
+        //$user->setFullName('Mark2');
 
-        $objectManager->persist($user);
-        $objectManager->flush();
+        //$objectManager->persist($user);
+        //$objectManager->flush();
 
-        die(var_dump($user->getId())); // yes, I'm lazy
+        $users = $objectManager->getRepository('\Application\Entity\User')->findAll();
 
-        return new ViewModel();
+        return new ViewModel(array('users' => $users));
     }
 }
